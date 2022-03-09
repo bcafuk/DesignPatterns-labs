@@ -1,0 +1,5 @@
+# Built executables
+/cmake-build-*
+
+# IDE files
+/.idea
