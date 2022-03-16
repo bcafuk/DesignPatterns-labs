@@ -11,8 +11,14 @@ struct Unary_Function {
 	int upper_bound;
 };
 
+double Unary_Function_negative_value_at(struct Unary_Function *this, double x);
+const virtual_method Unary_Function_vtable[2] = {
+		NULL,
+		Unary_Function_negative_value_at,
+};
+
 void Unary_Function_constructor(struct Unary_Function *this, int lb, int ub) {
-	// The vtable pointer was already set by the constructor of the superclass.
+	this->vptr = Unary_Function_vtable;
 	this->lower_bound = lb;
 	this->upper_bound = ub;
 }
@@ -49,8 +55,8 @@ const virtual_method Square_vtable[2] = {
 };
 
 void Square_constructor(struct Square *this, int lb, int ub) {
-	this->base.vptr = Square_vtable;
 	Unary_Function_constructor(&this->base, lb, ub);
+	this->base.vptr = Square_vtable;
 }
 
 double Square_value_at(struct Unary_Function *this, double x) {
@@ -70,8 +76,8 @@ const virtual_method Linear_vtable[2] = {
 };
 
 void Linear_constructor(struct Linear *this, int lb, int ub, double a_coef, double b_coef) {
-	this->base.vptr = Linear_vtable;
 	Unary_Function_constructor(&this->base, lb, ub);
+	this->base.vptr = Linear_vtable;
 	this->a = a_coef;
 	this->b = b_coef;
 }
