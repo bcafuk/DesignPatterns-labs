@@ -1,0 +1,27 @@
+Za alokaciju objekta tipa PlainOldClass se samo dekrementira pokazivač stoga.
+
+Za alokaciju objekta tipa CoolClass se poziva funkcija _Znwm, tj.
+operator new(unsigned long), koja alocira memoriju na gomili.
+
+U konstruktoru razreda CoolClass se prvo poziva konstruktor razreda Base.
+U konstruktoru razreda Base se virtualni pokazivač postavlja da pokazuje na
+virtualnu tablicu razreda Base. Nakon povratka iz konstruktora razreda Base,
+konstruktor razreda CoolClass virtualni pokazivač postavlja da pokazuje na
+virtualnu tablicu razreda CoolClass.
+
+Poziv poc.set zahtijeva:
+- izračun adrese objekta poc na stogu
+- postavljanje argumenata u registre po System V AMD64 ABI calling convetion
+- poziv funkcije na unaprijed poznatoj adresi
+Tijelo ove metode bi se moglo ugraditi na mjesto pozivanja (inlining),
+čime bi se izbjegla naredba CALL.
+
+Poziv pb->set zahtijeva:
+- dohvat pokazivača pb sa stoga
+- dereferenciranje pokazivača pb
+- dereferenciranje tako dobivenog virtualnog pokazivača
+- postavljanje argumenata u registre po System V AMD64 ABI calling convetion
+- poziv funkcije na adresi dobivenoj iz virtualne tablice
+Ovaj poziv zahtijeva više asemblerskih naredbi i tijelo metode se ne može
+ugraditi na mjesto pozivanja (inlining).
+

@@ -1,0 +1,5 @@
+Pri pozivu konstruktora, prvo se pozivaju konstruktori baznih razreda, a tek
+se onda postavlja virtualni pokazivač. Prema tome, za vrijeme izvršavanja
+funkcija pozvanih iz konstruktora baznog razreda, pokazivač je postavljen na
+tablicu baznog razreda, te se tek po povratku iz njega pokazivač postavlja na
+tablicu izvedenog razreda.

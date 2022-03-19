@@ -1,0 +1,19 @@
+Podatkovni članovi objekta:
+- Članske varijable strukture (osim pokazivača na tablicu virtualnih metoda)
+- name u strukturi Animal
+
+(Nestatičke) metode
+- Funkcije koje kao prvi parametar primaju pokazivač na strukturu
+- animalPrintGreeting, animalPrintMenu
+
+Virtualne metode
+- Funkcije koje se pozivaju korištenjem pokazivača iz tablice virtualnih metoda
+- dogGreet, dogMenu, catGreet. catMenu
+
+Konstruktori
+- Funkcije primaju pokazivač na strukturu i inicijaliziraju ju
+- constructDog, constructCat
+
+Virtualne tablice
+- Polja pokazivača na funkcije
+- dogVTable, catVTable

@@ -1,0 +1,13 @@
+sizeof(PlainOldClass): 4
+- int x_ (4B)
+
+sizeof(CoolClass): 16
+- VTable pointer (8B)
+- int x_ (4B)
+- (padding) (4B)
+
+Na mom računalu s 64-bitnom arhitekturom pokazivač zauzima 8 okteta,
+te zahtjeva poravnanje (alignment) na adresu koja je djeljiva s 8.
+Kako bi pokazivač na tablicu virtualnih funkcija uvijek bio poravnat,
+veličina razreda mora biti djeljiva s 8. Zbog toga na njegov kraj prevoditelj
+dodaje 4 okteta koja je sadrže korisne podatke.

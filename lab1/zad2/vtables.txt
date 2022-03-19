@@ -1,0 +1,11 @@
+Unary_Function:
+[0] __cxa_pure_virtual
+[1] Unary_Function::negative_value_at
+
+Square:
+[0] Square::value_at
+[1] Unary_Function::negative_value_at
+
+Linear:
+[0] Linear::value_at
+[1] Unary_Function::negative_value_at
