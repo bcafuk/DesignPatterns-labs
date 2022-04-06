@@ -1,5 +1,7 @@
-# Built executables
-/cmake-build-*
+# Built files
+cmake-build-*/
+out/
 
 # IDE files
-/.idea
+.idea/
+*.iml
