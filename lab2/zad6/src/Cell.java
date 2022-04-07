@@ -39,6 +39,9 @@ public class Cell {
                                               .map(sheet::cell)
                                               .toList();
 
+        if (referencedCells.contains(this))
+            throw new CircularReferenceException();
+
         Queue<Cell> queue = new LinkedList<>(referencedCells);
         Set<Cell> visited = new HashSet<>(referencedCells);
 
