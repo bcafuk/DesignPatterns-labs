@@ -2,13 +2,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 
-public class UnaryOperatorExpression implements Expression {
-    private final IntUnaryOperator operator;
-    private final Expression operand;
-
-    public UnaryOperatorExpression(IntUnaryOperator operator, Expression operand) {
-        this.operator = Objects.requireNonNull(operator);
-        this.operand = Objects.requireNonNull(operand);
+public record UnaryOperatorExpression(IntUnaryOperator operator,
+                                      Expression operand) implements Expression {
+    public UnaryOperatorExpression {
+        Objects.requireNonNull(operator);
+        Objects.requireNonNull(operand);
     }
 
     @Override

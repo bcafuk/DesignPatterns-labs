@@ -1,11 +1,9 @@
 import java.util.List;
 import java.util.Objects;
 
-public class ReferenceExpression implements Expression {
-    private final String address;
-
-    public ReferenceExpression(String address) {
-        this.address = Objects.requireNonNull(address);
+public record ReferenceExpression(String address) implements Expression {
+    public ReferenceExpression {
+        Objects.requireNonNull(address);
     }
 
     @Override

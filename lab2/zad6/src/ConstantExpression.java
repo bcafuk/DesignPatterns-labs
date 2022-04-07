@@ -1,12 +1,6 @@
 import java.util.List;
 
-public class ConstantExpression implements Expression {
-    private final int value;
-
-    public ConstantExpression(int value) {
-        this.value = value;
-    }
-
+public record ConstantExpression(int value) implements Expression {
     @Override
     public int evaluate(Sheet sheet) {
         return value;
