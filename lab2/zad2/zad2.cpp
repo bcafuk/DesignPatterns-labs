@@ -1,5 +1,7 @@
 #include <cstring>
 #include <iostream>
+#include <vector>
+#include <set>
 
 #define ARR_LEN(a) (sizeof(a) / sizeof(*(a)))
 
@@ -44,10 +46,17 @@ const char *arr_str[] = {
 		"Puna", "je", "kapi", "pa", "ih", "njise"
 };
 
+std::vector<int> vec_int = {1, 3, 5, 7, 4, 6, 9, 2, 0};
+std::set<int> set_int = {1, 3, 5, 7, 4, 6, 9, 2, 0};
+
 int main() {
 	std::cout << *mymax(&arr_int[0], &arr_int[ARR_LEN(arr_int)], gt_int) << "\n";
 
 	std::cout << *mymax(&arr_char[0], &arr_char[std::strlen(arr_char)], gt_char) << "\n";
 
 	std::cout << *mymax(&arr_str[0], &arr_str[ARR_LEN(arr_str)], gt_str) << "\n";
+
+	std::cout << *mymax(vec_int.begin(), vec_int.end(), gt_int) << "\n";
+
+	std::cout << *mymax(set_int.begin(), set_int.end(), gt_int) << "\n";
 }
