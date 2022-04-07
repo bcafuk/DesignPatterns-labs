@@ -3,8 +3,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Cell {
-    private static final Pattern addressPattern = Pattern.compile("\\A([A-Z]+)([0-9]+)\\z");
-    private static final Pattern expressionPattern = Pattern.compile("\\A([A-Z]+[0-9+])\\+([A-Z]+[0-9+])\\Z");
+    private static final Pattern ADDRESS_PATTERN = Pattern.compile("\\A([A-Z]+)([0-9]+)\\z");
 
     private String exp;
     private Expression parsedExp;
@@ -103,7 +102,7 @@ public class Cell {
     public static CellAddress parseAddress(String address) {
         Objects.requireNonNull(address);
 
-        Matcher matcher = addressPattern.matcher(address);
+        Matcher matcher = ADDRESS_PATTERN.matcher(address);
 
         if (!matcher.matches())
             throw new IllegalArgumentException(address + " is not a valid cell address");

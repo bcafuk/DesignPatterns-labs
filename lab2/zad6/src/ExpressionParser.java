@@ -6,10 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExpressionParser {
-    private static final Pattern constantPattern = Pattern.compile("\\A[0-9]+");
-    private static final Pattern referencePattern = Pattern.compile("\\A[A-Z]+[0-9]+");
+    private static final Pattern CONSTANT_PATTERN = Pattern.compile("\\A[0-9]+");
+    private static final Pattern REFERENCE_PATTERN = Pattern.compile("\\A[A-Z]+[0-9]+");
 
-    private static final List<Map<Character, IntBinaryOperator>> binaryOperators = List.of(
+    private static final List<Map<Character, IntBinaryOperator>> BINARY_OPERATORS = List.of(
             Map.of('^', (l, r) -> (int) Math.pow(l, r)),
             Map.of(
                     '*', (l, r) -> l * r,
@@ -22,7 +22,7 @@ public class ExpressionParser {
             )
     );
 
-    private static final Map<Character, IntUnaryOperator> prefixOperators = Map.of(
+    private static final Map<Character, IntUnaryOperator> PREFIX_OPERATORS = Map.of(
             '+', i -> i,
             '-', i -> -i
     );
@@ -43,7 +43,7 @@ public class ExpressionParser {
     }
 
     private Expression parseExpression() {
-        return parseBinaryExpression(binaryOperators.size() - 1);
+        return parseBinaryExpression(BINARY_OPERATORS.size() - 1);
     }
 
     private Expression parseBinaryExpression(int precedence) {
@@ -53,8 +53,8 @@ public class ExpressionParser {
         Expression left = parseBinaryExpression(precedence - 1);
 
         while (!sequence.isEmpty()) {
-            IntBinaryOperator operator = binaryOperators.get(precedence)
-                                                        .get(sequence.charAt(0));
+            IntBinaryOperator operator = BINARY_OPERATORS.get(precedence)
+                                                         .get(sequence.charAt(0));
 
             if (operator == null)
                 break;
@@ -68,7 +68,7 @@ public class ExpressionParser {
     }
 
     private Expression parsePrefixExpression() {
-        IntUnaryOperator operator = prefixOperators.get(sequence.charAt(0));
+        IntUnaryOperator operator = PREFIX_OPERATORS.get(sequence.charAt(0));
 
         if (operator == null)
             return parseAtomic();
@@ -78,11 +78,11 @@ public class ExpressionParser {
     }
 
     private Expression parseAtomic() {
-        Matcher refMatcher = referencePattern.matcher(sequence);
+        Matcher refMatcher = REFERENCE_PATTERN.matcher(sequence);
         if (refMatcher.find())
             return parseReference(refMatcher);
 
-        Matcher constMatcher = constantPattern.matcher(sequence);
+        Matcher constMatcher = CONSTANT_PATTERN.matcher(sequence);
         if (constMatcher.find())
             return parseConstant(constMatcher);
 
