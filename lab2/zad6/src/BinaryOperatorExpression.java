@@ -5,24 +5,24 @@ import java.util.function.IntBinaryOperator;
 
 public class BinaryOperatorExpression implements Expression {
     private final IntBinaryOperator operator;
-    private final Expression leftChild;
-    private final Expression rightChild;
+    private final Expression leftOperand;
+    private final Expression rightOperand;
 
-    public BinaryOperatorExpression(IntBinaryOperator operator, Expression leftChild, Expression rightChild) {
+    public BinaryOperatorExpression(IntBinaryOperator operator, Expression leftOperand, Expression rightOperand) {
         this.operator = Objects.requireNonNull(operator);
-        this.leftChild = Objects.requireNonNull(leftChild);
-        this.rightChild = Objects.requireNonNull(rightChild);
+        this.leftOperand = Objects.requireNonNull(leftOperand);
+        this.rightOperand = Objects.requireNonNull(rightOperand);
     }
 
     @Override
     public int evaluate(Sheet sheet) {
-        return operator.applyAsInt(leftChild.evaluate(sheet), rightChild.evaluate(sheet));
+        return operator.applyAsInt(leftOperand.evaluate(sheet), rightOperand.evaluate(sheet));
     }
 
     @Override
     public List<String> getReferences() {
-        List<String> references = new ArrayList<>(leftChild.getReferences());
-        references.addAll(rightChild.getReferences());
+        List<String> references = new ArrayList<>(leftOperand.getReferences());
+        references.addAll(rightOperand.getReferences());
         return references;
     }
 }
