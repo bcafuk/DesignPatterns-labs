@@ -16,13 +16,16 @@ public class Zad6 {
 
         try {
             sheet.set("A1", "A3");
-        } catch (Throwable throwable) {
-            throwable.printStackTrace(System.out);
+        } catch (CircularReferenceException exception) {
+            exception.printStackTrace(System.out);
         }
         sheet.print();
         System.out.println();
 
         sheet.set("B1", "A1-A2+A3-A4+20");
+        sheet.set("B2", "B1/5*A1-2^1");
+        sheet.set("B3", "2^((B2-4)/2)");
+        sheet.set("B4", "-2^A1*-A2");
         sheet.print();
         System.out.println();
     }
