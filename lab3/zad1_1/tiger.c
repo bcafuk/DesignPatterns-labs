@@ -17,15 +17,22 @@ static const char *(*vtable[3])() = {
 		menu,
 };
 
-void *create(char const *name) {
-	struct Tiger *tiger = malloc(sizeof(struct Tiger));
+size_t size(void) {
+	return sizeof(struct Tiger);
+}
+
+void construct(void *location, const char *name) {
+	struct Tiger *tiger = location;
+	tiger->vtable = vtable;
+	tiger->name = name;
+}
+
+void *create(const char *name) {
+	struct Tiger *tiger = malloc(size());
 	if (tiger == NULL)
 		return NULL;
 
-	tiger->vtable = vtable;
-	tiger->name = name;
-
-	return tiger;
+	construct(tiger, name);
 }
 
 char const *name(void *this) {

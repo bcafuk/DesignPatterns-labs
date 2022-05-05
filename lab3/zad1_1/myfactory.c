@@ -7,15 +7,17 @@
 
 static char libpath[PATH_MAX];
 
-void *myfactory(char const *libname, char const *ctorarg) {
+struct AnimalAllocator myfactory(char const *libname) {
+	struct AnimalAllocator allocator = {NULL, NULL, NULL};
+
 	int requiredLength = snprintf(libpath, PATH_MAX, "./%s.so", libname);
 	if (requiredLength < 0 || requiredLength >= sizeof libpath)
-		return NULL;
+		return allocator;
 
 	void *libHandle = dlopen(libpath, RTLD_LAZY);
-	void *(*create)(const char *) = dlsym(libHandle, "create");
 
-	if (create == NULL)
-		return NULL;
-	return create(ctorarg);
+	allocator.create = dlsym(libHandle, "create");
+	allocator.size = dlsym(libHandle, "size");
+	allocator.construct = dlsym(libHandle, "construct");
+	return allocator;
 }

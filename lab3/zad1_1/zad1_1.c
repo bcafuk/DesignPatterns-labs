@@ -20,7 +20,10 @@ void animalPrintMenu(const struct Animal *animal);
 
 int main(int argc, char *argv[]) {
 	for (int i = 1; i < argc; ++i) {
-		struct Animal *p = (struct Animal *) myfactory(argv[i], "Modrobradi");
+		struct AnimalAllocator allocator = myfactory(argv[i]);
+		struct Animal *p = alloca(allocator.size());
+		allocator.construct(p, "Modrobradi");
+
 		if (!p) {
 			printf("Creation of plug-in object %s failed.\n", argv[i]);
 			continue;
@@ -28,7 +31,6 @@ int main(int argc, char *argv[]) {
 
 		animalPrintGreeting(p);
 		animalPrintMenu(p);
-		free(p);
 	}
 }
 
