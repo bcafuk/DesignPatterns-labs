@@ -1,6 +1,7 @@
 # Built files
 cmake-build-*/
 out/
+target/
 
 # IDE files
 .idea/
