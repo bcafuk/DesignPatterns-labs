@@ -42,20 +42,27 @@ public final class TextEditor extends JComponent {
                         model.setSelectionRange(null);
                     }
                     break;
-
             }
         }
 
         @Override
         public void keyTyped(KeyEvent e) {
             // Disregard all control characters except newlines
-            if (Character.isISOControl(e.getKeyChar()) && e.getKeyChar() != '\n')
-                return;
+            if (Character.isISOControl(e.getKeyChar()) && e.getKeyChar() != '\n') {
+                if (e.getKeyChar() == '\u0018') {
+                    model.cut();
+                } else if (e.getKeyChar() == '\u0003') {
+                    model.copy();
+                } else if (e.getKeyChar() == '\u0016') {
+                    if (e.isShiftDown())
+                        model.popPaste();
+                    else
+                        model.paste();
+                }
 
-            if (model.getSelectionRange() != null) {
-                model.deleteRange(model.getSelectionRange());
-                model.setSelectionRange(null);
+                return;
             }
+
             model.insert(e.getKeyChar());
         }
     };

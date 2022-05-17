@@ -10,6 +10,8 @@ public final class TextEditorModel {
     private Location cursorLocation = new Location(0, 0);
     private LocationRange selectionRange = null;
 
+    private final ClipboardStack clipboardStack = new ClipboardStack();
+
     private final List<CursorObserver> cursorObservers = new ArrayList<>();
     private final List<TextObserver> textObservers = new ArrayList<>();
 
@@ -119,6 +121,11 @@ public final class TextEditorModel {
     }
 
     public void insert(String text) {
+        if (selectionRange != null) {
+            deleteRange(selectionRange);
+            selectionRange = null;
+        }
+
         String[] textLines = text.split("\r?\n", -1);
         if (textLines.length == 0)
             return;
@@ -150,6 +157,50 @@ public final class TextEditorModel {
 
         notifyTextObservers();
         notifyCursorObservers();
+    }
+
+    private String getTextFromRange(LocationRange range) {
+        if (range.left().line() == range.right().line())
+            return lines.get(range.left().line()).substring(range.left().column(), range.right().column());
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(lines.get(range.left().line()).substring(range.left().column()))
+          .append('\n');
+
+        for (int i = range.left().line() + 1; i < range.right().line(); i++) {
+            sb.append(lines.get(i))
+              .append('\n');
+        }
+
+        sb.append(lines.get(range.right().line()), 0, range.right().column());
+
+        return sb.toString();
+    }
+
+    public void cut() {
+        if (selectionRange == null)
+            return;
+
+        String text = getTextFromRange(selectionRange);
+        deleteRange(selectionRange);
+        setSelectionRange(null);
+        clipboardStack.push(text);
+    }
+
+    public void copy() {
+        if (selectionRange == null)
+            return;
+
+        clipboardStack.push(getTextFromRange(selectionRange));
+    }
+
+    public void paste() {
+        insert(clipboardStack.peek());
+    }
+
+    public void popPaste() {
+        insert(clipboardStack.pop());
     }
 
     public LocationRange getSelectionRange() {
