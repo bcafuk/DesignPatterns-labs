@@ -25,17 +25,13 @@ public final class ClipboardStack {
         return clipboardStack.peek();
     }
 
-    public boolean isEmpty() {
-        return clipboardStack.isEmpty();
-    }
-
     public void clear() {
         clipboardStack.clear();
         notifyClipboardObservers();
     }
 
     public interface ClipboardObserver {
-        void updateClipboard();
+        void updateClipboard(boolean hasItems);
     }
 
     public void addClipboardObserver(ClipboardObserver observer) {
@@ -48,6 +44,6 @@ public final class ClipboardStack {
 
     private void notifyClipboardObservers() {
         for (ClipboardObserver observer : clipboardObservers)
-            observer.updateClipboard();
+            observer.updateClipboard(!clipboardStack.isEmpty());
     }
 }

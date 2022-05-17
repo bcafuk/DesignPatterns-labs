@@ -1,9 +1,6 @@
 package hr.fer.zemris.ooup.lab3.textEditor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public final class TextEditorModel {
     private List<String> lines;
@@ -351,7 +348,7 @@ public final class TextEditorModel {
     }
 
     public interface CursorObserver {
-        void updateCursorLocation(Location location);
+        void updateCursorLocation(Location location, LocationRange selection);
     }
 
     public void addCursorObserver(CursorObserver observer) {
@@ -364,11 +361,11 @@ public final class TextEditorModel {
 
     private void notifyCursorObservers() {
         for (CursorObserver observer : cursorObservers)
-            observer.updateCursorLocation(cursorLocation);
+            observer.updateCursorLocation(cursorLocation, selectionRange);
     }
 
     public interface TextObserver {
-        void updateText();
+        void updateText(List<String> lines);
     }
 
     public void addTextObserver(TextObserver observer) {
@@ -380,7 +377,12 @@ public final class TextEditorModel {
     }
 
     private void notifyTextObservers() {
+        if (textObservers.isEmpty())
+            return;
+
+        List<String> unmodifiableLines = Collections.unmodifiableList(lines);
+
         for (TextObserver observer : textObservers)
-            observer.updateText();
+            observer.updateText(unmodifiableLines);
     }
 }

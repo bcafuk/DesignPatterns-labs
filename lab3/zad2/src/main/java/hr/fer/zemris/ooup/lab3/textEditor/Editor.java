@@ -59,6 +59,8 @@ public final class Editor extends JFrame {
         initFileMenu(menuBar);
         initEditMenu(toolBar, menuBar);
         initMoveMenu(menuBar);
+
+        initStatusBar();
     }
 
     private void initFileMenu(JMenuBar menuBar) {
@@ -140,7 +142,7 @@ public final class Editor extends JFrame {
         cutAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
         cutAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
         cutAction.setEnabled(false);
-        textEditor.model.addCursorObserver(location -> cutAction.setEnabled(textEditor.model.getSelectionRange() != null));
+        textEditor.model.addCursorObserver((location, selection) -> cutAction.setEnabled(selection != null));
 
         AbstractAction copyAction = new AbstractAction("Copy", loadIcon("icons/copy.png")) {
             @Override
@@ -151,7 +153,7 @@ public final class Editor extends JFrame {
         copyAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         copyAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
         copyAction.setEnabled(false);
-        textEditor.model.addCursorObserver(location -> copyAction.setEnabled(textEditor.model.getSelectionRange() != null));
+        textEditor.model.addCursorObserver((location, selection) -> copyAction.setEnabled(selection != null));
 
         AbstractAction pasteAction = new AbstractAction("Paste", loadIcon("icons/paste.png")) {
             @Override
@@ -162,7 +164,7 @@ public final class Editor extends JFrame {
         pasteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
         pasteAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_P);
         pasteAction.setEnabled(false);
-        textEditor.model.clipboardStack.addClipboardObserver(() -> pasteAction.setEnabled(!textEditor.model.clipboardStack.isEmpty()));
+        textEditor.model.clipboardStack.addClipboardObserver(pasteAction::setEnabled);
 
         AbstractAction popPasteAction = new AbstractAction("Paste and take", loadIcon("icons/popPaste.png")) {
             @Override
@@ -173,7 +175,7 @@ public final class Editor extends JFrame {
         popPasteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         popPasteAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_K);
         popPasteAction.setEnabled(false);
-        textEditor.model.clipboardStack.addClipboardObserver(() -> popPasteAction.setEnabled(!textEditor.model.clipboardStack.isEmpty()));
+        textEditor.model.clipboardStack.addClipboardObserver(popPasteAction::setEnabled);
 
         AbstractAction undoAction = new AbstractAction("Undo", loadIcon("icons/undo.png")) {
             @Override
@@ -205,7 +207,7 @@ public final class Editor extends JFrame {
         };
         deleteSelectionAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_D);
         deleteSelectionAction.setEnabled(false);
-        textEditor.model.addCursorObserver(location -> deleteSelectionAction.setEnabled(textEditor.model.getSelectionRange() != null));
+        textEditor.model.addCursorObserver((location, selection) -> deleteSelectionAction.setEnabled(selection != null));
 
         AbstractAction clearDocumentAction = new AbstractAction("Clear document", loadIcon("icons/clearDocument.png")) {
             @Override
@@ -260,6 +262,21 @@ public final class Editor extends JFrame {
 
         moveMenu.add(cursorToStartAction);
         moveMenu.add(cursorToEndAction);
+    }
+
+    private void initStatusBar() {
+        JPanel statusBar = new JPanel(new GridLayout(1, 2, 3, 1));
+        getContentPane().add(statusBar, BorderLayout.PAGE_END);
+
+        statusBar.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
+
+        JLabel positionStatus = new JLabel("1:1");
+        statusBar.add(positionStatus);
+        textEditor.model.addCursorObserver((location, selection) -> positionStatus.setText((location.line() + 1) + ":" + (location.column() + 1)));
+
+        JLabel lengthStatus = new JLabel("Lines: 1");
+        statusBar.add(lengthStatus);
+        textEditor.model.addTextObserver(lines -> lengthStatus.setText("Lines: " + lines.size()));
     }
 
     public static void main(String[] args) {
