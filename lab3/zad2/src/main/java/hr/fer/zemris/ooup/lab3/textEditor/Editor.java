@@ -81,10 +81,10 @@ public final class Editor extends JFrame {
                     try {
                         textEditor.model.setText(Files.readString(path));
                     } catch (IOException ex) {
-                        JOptionPane.showOptionDialog(Editor.this,
+                        JOptionPane.showMessageDialog(Editor.this,
                                 "Could not open the file " + path,
                                 "Error",
-                                JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, null, null);
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -103,10 +103,10 @@ public final class Editor extends JFrame {
                     try {
                         Files.writeString(path, textEditor.model.getText());
                     } catch (IOException ex) {
-                        JOptionPane.showOptionDialog(Editor.this,
+                        JOptionPane.showMessageDialog(Editor.this,
                                 "Could not save to the file " + path,
                                 "Error",
-                                JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, null, null);
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
