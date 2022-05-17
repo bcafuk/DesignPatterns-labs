@@ -6,17 +6,29 @@ import java.util.Iterator;
 import java.util.List;
 
 public final class TextEditorModel {
-    private final List<String> lines;
+    private List<String> lines;
     private Location cursorLocation = new Location(0, 0);
     private LocationRange selectionRange = null;
 
-    private final ClipboardStack clipboardStack = new ClipboardStack();
+    public final ClipboardStack clipboardStack = new ClipboardStack();
 
     private final List<CursorObserver> cursorObservers = new ArrayList<>();
     private final List<TextObserver> textObservers = new ArrayList<>();
 
     public TextEditorModel(String text) {
         lines = new ArrayList<>(Arrays.asList(text.split("\r?\n", -1)));
+    }
+
+    public void setText(String text) {
+        cursorLocation = new Location(0, 0);
+        selectionRange = null;
+        lines = new ArrayList<>(Arrays.asList(text.split("\r?\n", -1)));
+        notifyTextObservers();
+        notifyCursorObservers();
+    }
+
+    public String getText() {
+        return String.join("\n", lines);
     }
 
     public Location getCursorLocation() {
@@ -46,13 +58,17 @@ public final class TextEditorModel {
             return new Location(cursorLocation.line() + 1, 0);
     }
 
+    private void setCursorLocation(Location cursorLocation) {
+        this.cursorLocation = cursorLocation;
+        notifyCursorObservers();
+    }
+
     public void moveCursorLeft() {
         Location newLocation = prevLocation();
         if (newLocation == null)
             return;
 
-        cursorLocation = newLocation;
-        notifyCursorObservers();
+        setCursorLocation(newLocation);
     }
 
     public void moveCursorRight() {
@@ -60,8 +76,7 @@ public final class TextEditorModel {
         if (newLocation == null)
             return;
 
-        cursorLocation = newLocation;
-        notifyCursorObservers();
+        setCursorLocation(newLocation);
     }
 
     public void moveCursorUp() {
@@ -70,11 +85,9 @@ public final class TextEditorModel {
 
         int lineLength = lines.get(cursorLocation.line() - 1).length();
         if (cursorLocation.column() <= lineLength)
-            cursorLocation = new Location(cursorLocation.line() - 1, cursorLocation.column());
+            setCursorLocation(new Location(cursorLocation.line() - 1, cursorLocation.column()));
         else
-            cursorLocation = new Location(cursorLocation.line() - 1, lineLength);
-
-        notifyCursorObservers();
+            setCursorLocation(new Location(cursorLocation.line() - 1, lineLength));
     }
 
     public void moveCursorDown() {
@@ -83,11 +96,17 @@ public final class TextEditorModel {
 
         int lineLength = lines.get(cursorLocation.line() + 1).length();
         if (cursorLocation.column() <= lineLength)
-            cursorLocation = new Location(cursorLocation.line() + 1, cursorLocation.column());
+            setCursorLocation(new Location(cursorLocation.line() + 1, cursorLocation.column()));
         else
-            cursorLocation = new Location(cursorLocation.line() + 1, lineLength);
+            setCursorLocation(new Location(cursorLocation.line() + 1, lineLength));
+    }
 
-        notifyCursorObservers();
+    public void moveCursorToStart() {
+        setCursorLocation(new Location(0, 0));
+    }
+
+    public void moveCursorToEnd() {
+        setCursorLocation(new Location(lines.size() - 1, lines.get(lines.size() - 1).length()));
     }
 
     public void deleteBefore() {
@@ -122,8 +141,9 @@ public final class TextEditorModel {
 
     public void insert(String text) {
         if (selectionRange != null) {
+            cursorLocation = selectionRange.left();
             deleteRange(selectionRange);
-            selectionRange = null;
+            setSelectionRange(null);
         }
 
         String[] textLines = text.split("\r?\n", -1);
@@ -209,7 +229,7 @@ public final class TextEditorModel {
 
     public void setSelectionRange(LocationRange range) {
         selectionRange = range;
-        notifyTextObservers();
+        notifyCursorObservers();
     }
 
     public Iterator<String> allLines() {

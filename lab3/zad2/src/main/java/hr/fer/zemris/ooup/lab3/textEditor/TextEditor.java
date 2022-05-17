@@ -12,7 +12,7 @@ public final class TextEditor extends JComponent {
     private static final int HEIGHT = 600;
 
     private final Color selectionColor = new Color(85, 85, 170);
-    private final TextEditorModel model;
+    public final TextEditorModel model;
 
     private final KeyListener keyListener = new KeyAdapter() {
         @Override
@@ -48,20 +48,8 @@ public final class TextEditor extends JComponent {
         @Override
         public void keyTyped(KeyEvent e) {
             // Disregard all control characters except newlines
-            if (Character.isISOControl(e.getKeyChar()) && e.getKeyChar() != '\n') {
-                if (e.getKeyChar() == '\u0018') {
-                    model.cut();
-                } else if (e.getKeyChar() == '\u0003') {
-                    model.copy();
-                } else if (e.getKeyChar() == '\u0016') {
-                    if (e.isShiftDown())
-                        model.popPaste();
-                    else
-                        model.paste();
-                }
-
+            if (Character.isISOControl(e.getKeyChar()) && e.getKeyChar() != '\n')
                 return;
-            }
 
             model.insert(e.getKeyChar());
         }
