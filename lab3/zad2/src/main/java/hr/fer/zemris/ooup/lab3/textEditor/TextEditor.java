@@ -54,6 +54,12 @@ public final class TextEditor extends JComponent {
         model.addCursorObserver((Location location) -> repaint());
 
         addKeyListener(keyListener);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                requestFocusInWindow();
+            }
+        });
 
         requestFocusInWindow();
     }
