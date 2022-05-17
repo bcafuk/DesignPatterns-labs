@@ -52,6 +52,7 @@ public final class TextEditor extends JComponent {
     public TextEditor(String text) {
         model = new TextEditorModel(text);
         model.addCursorObserver((location, selection) -> repaint());
+        model.addTextObserver(lines -> repaint());
 
         addKeyListener(keyListener);
         addMouseListener(new MouseAdapter() {
