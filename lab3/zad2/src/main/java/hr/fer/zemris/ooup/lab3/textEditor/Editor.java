@@ -8,8 +8,14 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public final class Editor extends JFrame {
@@ -59,6 +65,7 @@ public final class Editor extends JFrame {
         initFileMenu(menuBar);
         initEditMenu(toolBar, menuBar);
         initMoveMenu(menuBar);
+        initPluginMenu(menuBar);
 
         initStatusBar();
     }
@@ -264,6 +271,36 @@ public final class Editor extends JFrame {
         moveMenu.add(cursorToEndAction);
     }
 
+    private void initPluginMenu(JMenuBar menuBar) {
+        List<Plugin> plugins;
+        try {
+            plugins = loadPlugins();
+        } catch (IOException | InvocationTargetException e) {
+            JOptionPane.showMessageDialog(this, "Error loading plugin", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return;
+        }
+
+        if (plugins.isEmpty())
+            return;
+
+        JMenu moveMenu = new JMenu("Plugins");
+        moveMenu.setMnemonic(KeyEvent.VK_P);
+        menuBar.add(moveMenu);
+
+        for (Plugin plugin : plugins) {
+            AbstractAction action = new AbstractAction(plugin.getName()) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    plugin.execute(textEditor.model, textEditor.model.undoManager, textEditor.model.clipboardStack);
+                }
+            };
+            action.putValue(Action.SHORT_DESCRIPTION, plugin.getDescription());
+
+            moveMenu.add(action);
+        }
+    }
+
     private void initStatusBar() {
         JPanel statusBar = new JPanel(new GridLayout(1, 2, 3, 1));
         getContentPane().add(statusBar, BorderLayout.PAGE_END);
@@ -277,6 +314,43 @@ public final class Editor extends JFrame {
         JLabel lengthStatus = new JLabel("Lines: 1");
         statusBar.add(lengthStatus);
         textEditor.model.addTextObserver(lines -> lengthStatus.setText("Lines: " + lines.size()));
+    }
+
+    private List<Plugin> loadPlugins() throws IOException, InvocationTargetException {
+
+
+        Path directory = Path.of(".");
+
+        ClassLoader classLoader = new URLClassLoader(new URL[]{directory.toUri().toURL()});
+
+        List<Plugin> plugins = new ArrayList<>();
+
+        for (Path file : Files.newDirectoryStream(directory)) {
+
+            String className = file.getFileName().toString();
+            if (!className.endsWith(".class"))
+                continue;
+            className = className.substring(0, className.length() - ".class".length());
+
+            Class<?> clazz;
+            try {
+                clazz = classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                continue;
+            }
+
+            if (!Plugin.class.isAssignableFrom(clazz))
+                continue;
+
+            try {
+                Constructor<Plugin> constructor = ((Class<Plugin>) clazz).getConstructor();
+                plugins.add(constructor.newInstance());
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return plugins;
     }
 
     public static void main(String[] args) {

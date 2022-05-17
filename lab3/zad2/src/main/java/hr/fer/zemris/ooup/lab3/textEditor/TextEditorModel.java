@@ -264,6 +264,17 @@ public final class TextEditorModel {
         });
     }
 
+    public char getCharacterAt(Location location) {
+        return lines.get(location.line()).charAt(location.column());
+    }
+
+    public void setCharacterAt(Location location, char character) {
+        String oldLine = lines.get(location.line());
+        String newLine = oldLine.substring(0, location.column()) + character + oldLine.substring(location.column() + 1);
+        lines.set(location.line(), newLine);
+        notifyTextObservers();
+    }
+
     private String getTextFromRange(LocationRange range) {
         if (range.left().line() == range.right().line())
             return lines.get(range.left().line()).substring(range.left().column(), range.right().column());
