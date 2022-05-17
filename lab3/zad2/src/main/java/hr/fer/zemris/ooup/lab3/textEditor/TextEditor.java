@@ -9,7 +9,7 @@ public final class TextEditor extends JComponent {
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
 
-    private final Color selectionColor = new Color(85, 85, 170);
+    private Color selectionColor = new Color(170, 170, 255);
     public final TextEditorModel model;
 
     private final KeyListener keyListener = new KeyAdapter() {
@@ -140,6 +140,14 @@ public final class TextEditor extends JComponent {
         Location cursorLocation = model.getCursorLocation();
         g.drawLine(cursorLocation.column() * charWidth, cursorLocation.line() * lineHeight,
                 cursorLocation.column() * charWidth, (cursorLocation.line() + 1) * lineHeight - 1);
+    }
+
+    public Color getSelectionColor() {
+        return selectionColor;
+    }
+
+    public void setSelectionColor(Color selectionColor) {
+        this.selectionColor = selectionColor;
     }
 
     @Override

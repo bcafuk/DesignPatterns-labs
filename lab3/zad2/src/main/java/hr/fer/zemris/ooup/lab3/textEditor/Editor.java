@@ -53,6 +53,7 @@ public final class Editor extends JFrame {
         textEditor.setOpaque(true);
         textEditor.setForeground(Color.WHITE);
         textEditor.setBackground(Color.BLACK);
+        textEditor.setSelectionColor(new Color(65, 122, 161));
         textEditor.setFont(new Font("Ubuntu Mono", Font.PLAIN, 16));
         innerPane.add(textEditor, BorderLayout.CENTER);
 
