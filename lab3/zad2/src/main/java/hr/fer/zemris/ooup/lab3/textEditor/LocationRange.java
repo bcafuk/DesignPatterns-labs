@@ -1,3 +1,5 @@
+package hr.fer.zemris.ooup.lab3.textEditor;
+
 public record LocationRange(Location start, Location end) {
     public boolean isReverse() {
         if (start.line() < end.line())

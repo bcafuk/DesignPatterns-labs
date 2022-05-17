@@ -1,3 +1,5 @@
+package hr.fer.zemris.ooup.lab3.textEditor;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
