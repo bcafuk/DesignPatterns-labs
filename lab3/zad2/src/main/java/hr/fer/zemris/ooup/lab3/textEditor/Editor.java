@@ -177,24 +177,30 @@ public final class Editor extends JFrame {
 
         AbstractAction undoAction = new AbstractAction("Undo", loadIcon("icons/undo.png")) {
             @Override
-            public void actionPerformed(ActionEvent e) {}
+            public void actionPerformed(ActionEvent e) {
+                textEditor.model.undoManager.undo();
+            }
         };
         undoAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
         undoAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_U);
         undoAction.setEnabled(false);
+        textEditor.model.undoManager.addUndoObserver((canUndo, canRedo) -> undoAction.setEnabled(canUndo));
 
         AbstractAction redoAction = new AbstractAction("Redo", loadIcon("icons/redo.png")) {
             @Override
-            public void actionPerformed(ActionEvent e) {}
+            public void actionPerformed(ActionEvent e) {
+                textEditor.model.undoManager.redo();
+            }
         };
         redoAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
         redoAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
         redoAction.setEnabled(false);
+        textEditor.model.undoManager.addUndoObserver((canUndo, canRedo) -> redoAction.setEnabled(canRedo));
 
         AbstractAction deleteSelectionAction = new AbstractAction("Delete selection", loadIcon("icons/deleteSelection.png")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                textEditor.model.insert("");
+                textEditor.model.deleteSelection();
             }
         };
         deleteSelectionAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_D);

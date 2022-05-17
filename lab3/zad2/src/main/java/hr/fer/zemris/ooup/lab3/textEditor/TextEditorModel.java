@@ -11,6 +11,7 @@ public final class TextEditorModel {
     private LocationRange selectionRange = null;
 
     public final ClipboardStack clipboardStack = new ClipboardStack();
+    public final UndoManager undoManager = new UndoManager();
 
     private final List<CursorObserver> cursorObservers = new ArrayList<>();
     private final List<TextObserver> textObservers = new ArrayList<>();
@@ -20,11 +21,33 @@ public final class TextEditorModel {
     }
 
     public void setText(String text) {
-        cursorLocation = new Location(0, 0);
-        selectionRange = null;
-        lines = new ArrayList<>(Arrays.asList(text.split("\r?\n", -1)));
-        notifyTextObservers();
-        notifyCursorObservers();
+        Location oldCursor = cursorLocation;
+        LocationRange oldSelection = selectionRange;
+        List<String> oldLines = lines;
+
+        List<String> newLines = new ArrayList<>(Arrays.asList(text.split("\r?\n", -1)));
+
+        undoManager.push(new UndoManager.EditAction() {
+            @Override
+            public void executeDo() {
+                cursorLocation = new Location(0, 0);
+                selectionRange = null;
+                lines = newLines;
+
+                notifyTextObservers();
+                notifyCursorObservers();
+            }
+
+            @Override
+            public void executeUndo() {
+                cursorLocation = oldCursor;
+                selectionRange = oldSelection;
+                lines = oldLines;
+
+                notifyTextObservers();
+                notifyCursorObservers();
+            }
+        });
     }
 
     public String getText() {
@@ -121,18 +144,49 @@ public final class TextEditorModel {
             deleteRange(new LocationRange(cursorLocation, end));
     }
 
-    public void deleteRange(LocationRange range) {
+    public void deleteSelection() {
+        deleteRange(selectionRange);
+    }
+
+    private void deleteRange(LocationRange range) {
+        undoManager.push(makeDeleteRangeAction(range));
+    }
+
+    public UndoManager.EditAction makeDeleteRangeAction(LocationRange range) {
         String firstLine = lines.get(range.left().line());
-        String lastLine = lines.get(range.right().line());
-        String joinedLines = firstLine.substring(0, range.left().column()) + lastLine.substring(range.right().column());
-        lines.set(range.left().line(), joinedLines);
+        List<String> erasedLines = new ArrayList<>(lines.subList(range.left().line() + 1, range.right().line() + 1));
 
-        lines.subList(range.left().line() + 1, range.right().line() + 1).clear();
+        Location oldCursor = cursorLocation;
 
-        cursorLocation = range.left();
+        return new UndoManager.EditAction() {
+            @Override
+            public void executeDo() {
+                String lastLine = lines.get(range.right().line());
 
-        notifyTextObservers();
-        notifyCursorObservers();
+                String joinedLines = firstLine.substring(0, range.left().column()) + lastLine.substring(range.right().column());
+                lines.set(range.left().line(), joinedLines);
+
+                lines.subList(range.left().line() + 1, range.right().line() + 1).clear();
+
+                cursorLocation = range.left();
+                selectionRange = null;
+
+                notifyTextObservers();
+                notifyCursorObservers();
+            }
+
+            @Override
+            public void executeUndo() {
+                lines.set(range.left().line(), firstLine);
+                lines.addAll(range.left().line() + 1, erasedLines);
+
+                cursorLocation = oldCursor;
+                selectionRange = null;
+
+                notifyTextObservers();
+                notifyCursorObservers();
+            }
+        };
     }
 
     public void insert(char c) {
@@ -140,43 +194,77 @@ public final class TextEditorModel {
     }
 
     public void insert(String text) {
-        if (selectionRange != null) {
-            cursorLocation = selectionRange.left();
-            deleteRange(selectionRange);
-            setSelectionRange(null);
+        String[] textLines = text.split("\r?\n", -1);
+
+        if (textLines.length == 0) {
+            if (selectionRange != null)
+                deleteSelection();
+            return;
         }
 
-        String[] textLines = text.split("\r?\n", -1);
-        if (textLines.length == 0)
-            return;
+        UndoManager.EditAction deleteSelectionAction;
+        if (selectionRange != null)
+            deleteSelectionAction = makeDeleteRangeAction(selectionRange);
+        else
+            deleteSelectionAction = null;
 
         Location oldCursorLocation = cursorLocation;
 
-        String oldCursorLine = lines.get(oldCursorLocation.line());
-        String firstLine = oldCursorLine.substring(0, oldCursorLocation.column()) + textLines[0];
+        undoManager.push(new UndoManager.EditAction() {
+            @Override
+            public void executeDo() {
+                if (deleteSelectionAction != null)
+                    deleteSelectionAction.executeDo();
 
-        List<String> newLines = new ArrayList<>();
+                List<String> newLines = new ArrayList<>();
+                for (int i = 1; i < textLines.length - 1; i++)
+                    newLines.add(textLines[i]);
 
-        for (int i = 1; i < textLines.length - 1; i++)
-            newLines.add(oldCursorLocation.line() + i, textLines[i]);
+                String oldCursorLine = lines.get(oldCursorLocation.line());
 
-        if (textLines.length > 1) {
-            String lastLine = textLines[textLines.length - 1] + oldCursorLine.substring(oldCursorLocation.column());
-            newLines.add(lastLine);
+                String firstLine = oldCursorLine.substring(0, oldCursorLocation.column()) + textLines[0];
+                Location newCursorLocation;
 
-            cursorLocation = new Location(oldCursorLocation.line() + textLines.length - 1, textLines[textLines.length - 1].length());
-        } else {
-            firstLine += oldCursorLine.substring(oldCursorLocation.column());
+                if (textLines.length > 1) {
+                    String lastLine = textLines[textLines.length - 1] + oldCursorLine.substring(oldCursorLocation.column());
+                    newLines.add(lastLine);
 
-            cursorLocation = new Location(oldCursorLocation.line(), oldCursorLocation.column() + textLines[0].length());
-        }
+                    newCursorLocation = new Location(oldCursorLocation.line() + textLines.length - 1, textLines[textLines.length - 1].length());
+                } else {
+                    firstLine += oldCursorLine.substring(oldCursorLocation.column());
 
-        lines.addAll(oldCursorLocation.line() + 1, newLines);
+                    newCursorLocation = new Location(oldCursorLocation.line(), oldCursorLocation.column() + textLines[0].length());
+                }
 
-        lines.set(oldCursorLocation.line(), firstLine);
+                lines.addAll(oldCursorLocation.line() + 1, newLines);
+                lines.set(oldCursorLocation.line(), firstLine);
 
-        notifyTextObservers();
-        notifyCursorObservers();
+                cursorLocation = newCursorLocation;
+
+                notifyTextObservers();
+                notifyCursorObservers();
+            }
+
+            @Override
+            public void executeUndo() {
+                String firstLine = lines.get(oldCursorLocation.line());
+                String oldCursorLine = firstLine.substring(0, oldCursorLocation.column());
+
+                if (textLines.length > 1)
+                    oldCursorLine += lines.get(oldCursorLocation.line() + textLines.length - 1).substring(textLines[textLines.length - 1].length());
+
+                lines.set(oldCursorLocation.line(), oldCursorLine);
+                lines.subList(oldCursorLocation.line() + 1, oldCursorLocation.line() + textLines.length).clear();
+
+                if (deleteSelectionAction != null)
+                    deleteSelectionAction.executeUndo();
+
+                cursorLocation = oldCursorLocation;
+
+                notifyTextObservers();
+                notifyCursorObservers();
+            }
+        });
     }
 
     private String getTextFromRange(LocationRange range) {
@@ -203,8 +291,7 @@ public final class TextEditorModel {
             return;
 
         String text = getTextFromRange(selectionRange);
-        deleteRange(selectionRange);
-        setSelectionRange(null);
+        deleteSelection();
         clipboardStack.push(text);
     }
 

@@ -2,9 +2,7 @@ package hr.fer.zemris.ooup.lab3.textEditor;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.Iterator;
 
 public final class TextEditor extends JComponent {
@@ -26,21 +24,17 @@ public final class TextEditor extends JComponent {
                     break;
 
                 case KeyEvent.VK_DELETE:
-                    if (model.getSelectionRange() == null) {
+                    if (model.getSelectionRange() == null)
                         model.deleteAfter();
-                    } else {
-                        model.deleteRange(model.getSelectionRange());
-                        model.setSelectionRange(null);
-                    }
+                    else
+                        model.deleteSelection();
                     break;
 
                 case KeyEvent.VK_BACK_SPACE:
-                    if (model.getSelectionRange() == null) {
+                    if (model.getSelectionRange() == null)
                         model.deleteBefore();
-                    } else {
-                        model.deleteRange(model.getSelectionRange());
-                        model.setSelectionRange(null);
-                    }
+                    else
+                        model.deleteSelection();
                     break;
             }
         }
