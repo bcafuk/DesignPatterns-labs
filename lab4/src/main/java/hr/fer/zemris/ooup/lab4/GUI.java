@@ -4,6 +4,7 @@ import hr.fer.zemris.ooup.lab4.graphicalObjects.CompositeShape;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.LineSegment;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.Oval;
+import hr.fer.zemris.ooup.lab4.renderers.SVGRendererImpl;
 import hr.fer.zemris.ooup.lab4.states.*;
 
 import javax.swing.*;

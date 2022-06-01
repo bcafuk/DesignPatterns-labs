@@ -1,9 +1,9 @@
 package hr.fer.zemris.ooup.lab4.graphicalObjects;
 
-import hr.fer.zemris.ooup.lab4.Renderer;
 import hr.fer.zemris.ooup.lab4.geometry.GeometryUtil;
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
+import hr.fer.zemris.ooup.lab4.renderers.Renderer;
 
 import java.util.List;
 import java.util.Stack;

@@ -1,8 +1,8 @@
 package hr.fer.zemris.ooup.lab4.states;
 
-import hr.fer.zemris.ooup.lab4.Renderer;
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
+import hr.fer.zemris.ooup.lab4.renderers.Renderer;
 
 public final class IdleState implements State {
     @Override

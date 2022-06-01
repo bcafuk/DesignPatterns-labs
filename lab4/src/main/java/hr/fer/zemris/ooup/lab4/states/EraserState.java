@@ -1,9 +1,9 @@
 package hr.fer.zemris.ooup.lab4.states;
 
 import hr.fer.zemris.ooup.lab4.DocumentModel;
-import hr.fer.zemris.ooup.lab4.Renderer;
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
+import hr.fer.zemris.ooup.lab4.renderers.Renderer;
 
 import java.util.ArrayList;
 import java.util.List;

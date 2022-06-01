@@ -1,4 +1,4 @@
-package hr.fer.zemris.ooup.lab4;
+package hr.fer.zemris.ooup.lab4.renderers;
 
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 
