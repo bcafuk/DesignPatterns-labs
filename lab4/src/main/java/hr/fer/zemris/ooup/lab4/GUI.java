@@ -22,11 +22,10 @@ import java.util.*;
 
 public final class GUI extends JFrame {
     private final Map<String, GraphicalObject> loadingPrototypes = new HashMap<>();
+    private final DocumentModel documentModel = new DocumentModel();
     private State currentState = new IdleState();
 
     public GUI(List<GraphicalObject> prototypes) {
-        DocumentModel documentModel = new DocumentModel();
-
         registerPrototype(new CompositeShape());
         for (GraphicalObject prototype : prototypes)
             registerPrototype(prototype);
@@ -40,6 +39,22 @@ public final class GUI extends JFrame {
         Canvas canvas = new Canvas(this, documentModel);
         getContentPane().add(canvas, BorderLayout.CENTER);
 
+        canvas.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    setCurrentState(new IdleState());
+            }
+        });
+
+        initToolBar(prototypes);
+    }
+
+    private void registerPrototype(GraphicalObject prototype) {
+        loadingPrototypes.put(prototype.getShapeID(), prototype);
+    }
+
+    private void initToolBar(List<GraphicalObject> prototypes) {
         JToolBar toolBar = new JToolBar();
         getContentPane().add(toolBar, BorderLayout.PAGE_START);
 
@@ -55,27 +70,7 @@ public final class GUI extends JFrame {
                 Path path = fileChooser.getSelectedFile().toPath();
 
                 try {
-                    Stack<GraphicalObject> objectStack = new Stack<>();
-
-                    Files.lines(path)
-                         .forEach(line -> {
-                             String[] split = line.split("\\s+", 2);
-                             if (split.length < 1)
-                                 return;
-
-                             GraphicalObject prototype = loadingPrototypes.get(split[0]);
-                             if (prototype == null)
-                                 throw new NoSuchElementException("No object with ID " + split[0]);
-
-                             if (split.length > 1)
-                                 prototype.load(objectStack, split[1]);
-                             else
-                                 prototype.load(objectStack, "");
-                         });
-
-                    documentModel.clear();
-                    for (GraphicalObject object : objectStack)
-                        documentModel.addGraphicalObject(object);
+                    loadImage(path);
                 } catch (IOException ioException) {
                     JOptionPane.showMessageDialog(GUI.this,
                             "Greška pri pohrani u datoteku " + path,
@@ -97,12 +92,8 @@ public final class GUI extends JFrame {
                     return;
                 Path path = fileChooser.getSelectedFile().toPath();
 
-                List<String> lines = new ArrayList<>();
-                for (GraphicalObject object : documentModel.list())
-                    object.save(lines);
-
                 try {
-                    Files.write(path, lines);
+                    saveImage(path);
                 } catch (IOException ioException) {
                     JOptionPane.showMessageDialog(GUI.this,
                             "Greška pri pohrani u datoteku " + path,
@@ -124,11 +115,8 @@ public final class GUI extends JFrame {
                     return;
                 String fileName = fileChooser.getSelectedFile().getPath();
 
-                SVGRendererImpl renderer = new SVGRendererImpl(fileName);
-                for (GraphicalObject object : documentModel.list())
-                    object.render(renderer);
                 try {
-                    renderer.close();
+                    svgExport(fileName);
                 } catch (IOException ioException) {
                     JOptionPane.showMessageDialog(GUI.this,
                             "Greška pri izvozu u datoteku " + fileName,
@@ -159,18 +147,44 @@ public final class GUI extends JFrame {
             }
         });
         toolBar.add(selectionButton);
-
-        canvas.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-                    setCurrentState(new IdleState());
-            }
-        });
     }
 
-    private void registerPrototype(GraphicalObject prototype) {
-        loadingPrototypes.put(prototype.getShapeID(), prototype);
+    private void loadImage(Path path) throws IOException {
+        Stack<GraphicalObject> objectStack = new Stack<>();
+
+        Files.lines(path)
+             .forEach(line -> {
+                 String[] split = line.split("\\s+", 2);
+                 if (split.length < 1)
+                     return;
+
+                 GraphicalObject prototype = loadingPrototypes.get(split[0]);
+                 if (prototype == null)
+                     throw new NoSuchElementException("No object with ID " + split[0]);
+
+                 if (split.length > 1)
+                     prototype.load(objectStack, split[1]);
+                 else
+                     prototype.load(objectStack, "");
+             });
+
+        documentModel.clear();
+        for (GraphicalObject object : objectStack)
+            documentModel.addGraphicalObject(object);
+    }
+
+    private void saveImage(Path path) throws IOException {
+        List<String> lines = new ArrayList<>();
+        for (GraphicalObject object : documentModel.list())
+            object.save(lines);
+        Files.write(path, lines);
+    }
+
+    private void svgExport(String fileName) throws IOException {
+        SVGRendererImpl renderer = new SVGRendererImpl(fileName);
+        for (GraphicalObject object : documentModel.list())
+            object.render(renderer);
+        renderer.close();
     }
 
     public static void main(String[] args) {
