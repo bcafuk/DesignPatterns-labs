@@ -6,6 +6,7 @@ import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
 
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 public final class SelectShapeState implements State {
@@ -20,20 +21,19 @@ public final class SelectShapeState implements State {
 
     @Override
     public void mouseDown(Point mousePoint, boolean shiftDown, boolean ctrlDown) {
-        if (selectedHotPoint != -1)
-            return;
+        if (!ctrlDown) {
+            // Try to select a hot point
+            GraphicalObject selectedObject = getSelectedObject();
+            if (selectedObject != null) {
+                selectedHotPoint = model.findSelectedHotPoint(selectedObject, mousePoint);
 
-        List<GraphicalObject> selectedObjects = model.getSelectedObjects();
-        if (selectedObjects.size() == 1) {
-            GraphicalObject selectedObject = selectedObjects.get(0);
-            selectedHotPoint = model.findSelectedHotPoint(selectedObject, mousePoint);
-        }
+                if (selectedHotPoint != -1)
+                    return;
+            }
 
-        if (selectedHotPoint != -1)
-            return;
-
-        if (!ctrlDown)
+            // No hot point was selected at this point, deselect everything
             deselectAll();
+        }
 
         GraphicalObject object = model.findSelectedGraphicalObject(mousePoint);
         if (object != null)
@@ -50,17 +50,24 @@ public final class SelectShapeState implements State {
         if (selectedHotPoint == -1)
             return;
 
-        List<GraphicalObject> selectedObjects = model.getSelectedObjects();
-        if (selectedObjects.size() != 1)
+        GraphicalObject selectedObject = getSelectedObject();
+        if (selectedObject == null)
             return;
-
-        GraphicalObject selectedObject = selectedObjects.get(0);
 
         selectedObject.setHotPoint(selectedHotPoint, mousePoint);
     }
 
     @Override
-    public void keyPressed(int keyCode) {}
+    public void keyPressed(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.VK_RIGHT -> model.getSelectedObjects().forEach(go -> go.translate(new Point(1, 0)));
+            case KeyEvent.VK_LEFT -> model.getSelectedObjects().forEach(go -> go.translate(new Point(-1, 0)));
+            case KeyEvent.VK_DOWN -> model.getSelectedObjects().forEach(go -> go.translate(new Point(0, 1)));
+            case KeyEvent.VK_UP -> model.getSelectedObjects().forEach(go -> go.translate(new Point(0, -1)));
+            case KeyEvent.VK_EQUALS, KeyEvent.VK_PLUS, KeyEvent.VK_ADD -> model.getSelectedObjects().forEach(model::increaseZ);
+            case KeyEvent.VK_MINUS, KeyEvent.VK_SUBTRACT -> model.getSelectedObjects().forEach(model::decreaseZ);
+        }
+    }
 
     @Override
     public void afterDraw(Renderer r, GraphicalObject go) {
@@ -70,11 +77,9 @@ public final class SelectShapeState implements State {
 
     @Override
     public void afterDraw(Renderer r) {
-        List<GraphicalObject> selectedObjects = model.getSelectedObjects();
-        if (selectedObjects.size() != 1)
+        GraphicalObject selectedObject = getSelectedObject();
+        if (selectedObject == null)
             return;
-
-        GraphicalObject selectedObject = selectedObjects.get(0);
 
         for (int i = 0; i < selectedObject.getNumberOfHotPoints(); i++) {
             Point hotPoint = selectedObject.getHotPoint(i);
@@ -86,6 +91,14 @@ public final class SelectShapeState implements State {
     @Override
     public void onLeaving() {
         deselectAll();
+    }
+
+    private GraphicalObject getSelectedObject() {
+        List<GraphicalObject> selectedObjects = model.getSelectedObjects();
+        if (selectedObjects.size() == 1)
+            return selectedObjects.get(0);
+        else
+            return null;
     }
 
     private void deselectAll() {

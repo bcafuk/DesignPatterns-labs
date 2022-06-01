@@ -101,6 +101,7 @@ public final class DocumentModel {
             return;
 
         Collections.swap(objects, index, index + 1);
+        notifyListeners();
     }
 
     public void decreaseZ(GraphicalObject go) {
@@ -112,6 +113,7 @@ public final class DocumentModel {
             return;
 
         Collections.swap(objects, index, index - 1);
+        notifyListeners();
     }
 
     public GraphicalObject findSelectedGraphicalObject(Point mousePoint) {
@@ -121,7 +123,7 @@ public final class DocumentModel {
         for (GraphicalObject object : objects) {
             double distance = object.selectionDistance(mousePoint);
 
-            if (distance <= SELECTION_PROXIMITY && distance < minimumDistance) {
+            if (distance <= SELECTION_PROXIMITY && distance <= minimumDistance) {
                 closestObject = object;
                 minimumDistance = distance;
             }
@@ -137,7 +139,7 @@ public final class DocumentModel {
         for (int i = 0; i < object.getNumberOfHotPoints(); i++) {
             double distance = GeometryUtil.distanceFromPoint(object.getHotPoint(i), mousePoint);
 
-            if (distance <= SELECTION_PROXIMITY && distance < minimumDistance) {
+            if (distance <= SELECTION_PROXIMITY && distance <= minimumDistance) {
                 closestHotPoint = i;
                 minimumDistance = distance;
             }
