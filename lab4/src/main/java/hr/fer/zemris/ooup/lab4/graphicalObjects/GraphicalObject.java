@@ -4,6 +4,8 @@ import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
 import hr.fer.zemris.ooup.lab4.Renderer;
 
+import java.util.List;
+
 public interface GraphicalObject {
     boolean isSelected();
 
@@ -37,9 +39,9 @@ public interface GraphicalObject {
 
     GraphicalObject duplicate();
 
-//    String getShapeID();
+    String getShapeID();
 
 //    void load(Stack<GraphicalObject> stack, String data);
 
-//    void save(List<String> rows);
+    void save(List<String> rows);
 }

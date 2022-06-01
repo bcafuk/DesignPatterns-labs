@@ -14,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,33 @@ public final class GUI extends JFrame {
 
         JToolBar toolBar = new JToolBar();
         getContentPane().add(toolBar, BorderLayout.PAGE_START);
+
+        JButton saveButton = new JButton("Pohrani");
+        saveButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int chosenOption = fileChooser.showSaveDialog(GUI.this);
+
+                if (chosenOption != JFileChooser.APPROVE_OPTION)
+                    return;
+                Path path = fileChooser.getSelectedFile().toPath();
+
+                List<String> lines = new ArrayList<>();
+                for (GraphicalObject object : documentModel.list())
+                    object.save(lines);
+
+                try {
+                    Files.write(path, lines);
+                } catch (IOException ioException) {
+                    JOptionPane.showMessageDialog(GUI.this,
+                            "Greška pri pohrani u datoteku " + path,
+                            "Greška",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        toolBar.add(saveButton);
 
         JButton svgExportButton = new JButton("SVG export");
         svgExportButton.addActionListener(new AbstractAction() {

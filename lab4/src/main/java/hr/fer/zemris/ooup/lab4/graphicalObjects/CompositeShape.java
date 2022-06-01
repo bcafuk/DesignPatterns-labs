@@ -81,4 +81,16 @@ public final class CompositeShape extends AbstractGraphicalObject {
                                                        .toList();
         return new CompositeShape(clonedChildren);
     }
+
+    @Override
+    public String getShapeID() {
+        return "@COMP";
+    }
+
+    @Override
+    public void save(List<String> rows) {
+        for (GraphicalObject child : children)
+            child.save(rows);
+        rows.add(String.format("%s %d", getShapeID(), children.size()));
+    }
 }

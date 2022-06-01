@@ -1,9 +1,11 @@
 package hr.fer.zemris.ooup.lab4.graphicalObjects;
 
+import hr.fer.zemris.ooup.lab4.Renderer;
 import hr.fer.zemris.ooup.lab4.geometry.GeometryUtil;
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
-import hr.fer.zemris.ooup.lab4.Renderer;
+
+import java.util.List;
 
 public final class LineSegment extends AbstractGraphicalObject {
     public LineSegment() {
@@ -37,6 +39,18 @@ public final class LineSegment extends AbstractGraphicalObject {
     @Override
     public GraphicalObject duplicate() {
         return new LineSegment(getHotPoint(0), getHotPoint(1));
+    }
+
+    @Override
+    public String getShapeID() {
+        return "@LINE";
+    }
+
+    @Override
+    public void save(List<String> rows) {
+        rows.add(String.format("%s %d %d %d %d", getShapeID(),
+                getHotPoint(0).x(), getHotPoint(0).y(),
+                getHotPoint(1).x(), getHotPoint(1).y()));
     }
 
     @Override
