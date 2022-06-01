@@ -5,6 +5,7 @@ import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
 
 import java.util.List;
+import java.util.Stack;
 
 public final class Oval extends AbstractGraphicalObject {
     private final static int NUM_POINTS = 64;
@@ -74,6 +75,17 @@ public final class Oval extends AbstractGraphicalObject {
     @Override
     public String getShapeID() {
         return "@OVAL";
+    }
+
+    @Override
+    public void load(Stack<GraphicalObject> stack, String data) {
+        String[] args = data.split("\\s+");
+        if (args.length != 4)
+            throw new IllegalArgumentException("Expected 4 arguments, but got " + args.length);
+
+        stack.push(new Oval(
+                new Point(Integer.parseInt(args[0]), Integer.parseInt(args[1])),
+                new Point(Integer.parseInt(args[2]), Integer.parseInt(args[3]))));
     }
 
     @Override

@@ -4,12 +4,14 @@ import hr.fer.zemris.ooup.lab4.Renderer;
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public final class CompositeShape extends AbstractGraphicalObject {
     private final List<GraphicalObject> children;
+
+    public CompositeShape() {
+        this(List.of());
+    }
 
     public CompositeShape(List<GraphicalObject> children) {
         super(new Point[0]);
@@ -85,6 +87,21 @@ public final class CompositeShape extends AbstractGraphicalObject {
     @Override
     public String getShapeID() {
         return "@COMP";
+    }
+
+    @Override
+    public void load(Stack<GraphicalObject> stack, String data) {
+        String[] args = data.split("\\s+");
+        if (args.length != 1)
+            throw new IllegalArgumentException("Expected 1 argument, but got " + args.length);
+
+        int numChildren = Integer.parseInt(args[0]);
+
+        List<GraphicalObject> children = new LinkedList<>();
+        for (int i = 0; i < numChildren; i++)
+            children.add(0, stack.pop());
+
+        stack.push(new CompositeShape(children));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package hr.fer.zemris.ooup.lab4;
 
+import hr.fer.zemris.ooup.lab4.graphicalObjects.CompositeShape;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.LineSegment;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.Oval;
@@ -16,14 +17,19 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.*;
 
 public final class GUI extends JFrame {
+    private final Map<String, GraphicalObject> loadingPrototypes = new HashMap<>();
     private State currentState = new IdleState();
 
     public GUI(List<GraphicalObject> prototypes) {
         DocumentModel documentModel = new DocumentModel();
+
+        registerPrototype(new CompositeShape());
+        for (GraphicalObject prototype : prototypes)
+            registerPrototype(prototype);
 
         setSize(800, 600);
         setTitle("Vector editor");
@@ -36,6 +42,49 @@ public final class GUI extends JFrame {
 
         JToolBar toolBar = new JToolBar();
         getContentPane().add(toolBar, BorderLayout.PAGE_START);
+
+        JButton loadButton = new JButton("Učitaj");
+        loadButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int chosenOption = fileChooser.showOpenDialog(GUI.this);
+
+                if (chosenOption != JFileChooser.APPROVE_OPTION)
+                    return;
+                Path path = fileChooser.getSelectedFile().toPath();
+
+                try {
+                    Stack<GraphicalObject> objectStack = new Stack<>();
+
+                    Files.lines(path)
+                         .forEach(line -> {
+                             String[] split = line.split("\\s+", 2);
+                             if (split.length < 1)
+                                 return;
+
+                             GraphicalObject prototype = loadingPrototypes.get(split[0]);
+                             if (prototype == null)
+                                 throw new NoSuchElementException("No object with ID " + split[0]);
+
+                             if (split.length > 1)
+                                 prototype.load(objectStack, split[1]);
+                             else
+                                 prototype.load(objectStack, "");
+                         });
+
+                    documentModel.clear();
+                    for (GraphicalObject object : objectStack)
+                        documentModel.addGraphicalObject(object);
+                } catch (IOException ioException) {
+                    JOptionPane.showMessageDialog(GUI.this,
+                            "Greška pri pohrani u datoteku " + path,
+                            "Greška",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        toolBar.add(loadButton);
 
         JButton saveButton = new JButton("Pohrani");
         saveButton.addActionListener(new AbstractAction() {
@@ -120,6 +169,10 @@ public final class GUI extends JFrame {
         });
     }
 
+    private void registerPrototype(GraphicalObject prototype) {
+        loadingPrototypes.put(prototype.getShapeID(), prototype);
+    }
+
     public static void main(String[] args) {
         List<GraphicalObject> objects = new ArrayList<>();
 
@@ -136,7 +189,7 @@ public final class GUI extends JFrame {
         return currentState;
     }
 
-    void setCurrentState(State state) {
+    private void setCurrentState(State state) {
         currentState.onLeaving();
         currentState = state;
     }

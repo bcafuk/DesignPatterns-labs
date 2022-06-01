@@ -5,6 +5,7 @@ import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
 import hr.fer.zemris.ooup.lab4.Renderer;
 
 import java.util.List;
+import java.util.Stack;
 
 public interface GraphicalObject {
     boolean isSelected();
@@ -37,7 +38,7 @@ public interface GraphicalObject {
 
     String getShapeID();
 
-//    void load(Stack<GraphicalObject> stack, String data);
+    void load(Stack<GraphicalObject> stack, String data);
 
     void save(List<String> rows);
 }
