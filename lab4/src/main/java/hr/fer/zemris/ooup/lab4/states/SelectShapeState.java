@@ -4,9 +4,11 @@ import hr.fer.zemris.ooup.lab4.DocumentModel;
 import hr.fer.zemris.ooup.lab4.Renderer;
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
+import hr.fer.zemris.ooup.lab4.graphicalObjects.CompositeShape;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class SelectShapeState implements State {
@@ -66,6 +68,8 @@ public final class SelectShapeState implements State {
             case KeyEvent.VK_UP -> model.getSelectedObjects().forEach(go -> go.translate(new Point(0, -1)));
             case KeyEvent.VK_EQUALS, KeyEvent.VK_PLUS, KeyEvent.VK_ADD -> model.getSelectedObjects().forEach(model::increaseZ);
             case KeyEvent.VK_MINUS, KeyEvent.VK_SUBTRACT -> model.getSelectedObjects().forEach(model::decreaseZ);
+            case KeyEvent.VK_G -> group();
+            case KeyEvent.VK_U -> ungroup();
         }
     }
 
@@ -101,6 +105,33 @@ public final class SelectShapeState implements State {
             return null;
     }
 
+    private void group() {
+        List<GraphicalObject> children = new ArrayList<>(model.getSelectedObjects());
+        if (children.size() < 2)
+            return;
+
+        for (GraphicalObject child : children)
+            model.removeGraphicalObject(child);
+
+        CompositeShape group = new CompositeShape(children);
+        model.addGraphicalObject(group);
+        group.setSelected(true);
+    }
+
+    private void ungroup() {
+        GraphicalObject selectedObject = getSelectedObject();
+        if (selectedObject == null)
+            return;
+        if (!(selectedObject instanceof CompositeShape group))
+            return;
+
+        model.removeGraphicalObject(group);
+        for (GraphicalObject child : group.getChildren()) {
+            model.addGraphicalObject(child);
+            child.setSelected(true);
+        }
+    }
+
     private void deselectAll() {
         selectedHotPoint = -1;
         for (GraphicalObject selected : model.list())
@@ -109,10 +140,10 @@ public final class SelectShapeState implements State {
 
     private void drawRectangle(Renderer r, Rectangle rect) {
         Point[] corners = new Point[]{
-                new Point(rect.x(), rect.y()),
-                new Point(rect.x() + rect.width(), rect.y()),
-                new Point(rect.x() + rect.width(), rect.y() + rect.height()),
-                new Point(rect.x(), rect.y() + rect.height()),
+                new Point(rect.left(), rect.top()),
+                new Point(rect.right(), rect.top()),
+                new Point(rect.right(), rect.bottom()),
+                new Point(rect.left(), rect.bottom()),
         };
 
         for (int i = 0; i < corners.length; i++)
