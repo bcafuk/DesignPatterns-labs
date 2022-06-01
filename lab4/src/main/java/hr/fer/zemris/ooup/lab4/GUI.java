@@ -50,6 +50,18 @@ public final class GUI extends JFrame {
         initToolBar(prototypes);
     }
 
+    public static void main(String[] args) {
+        List<GraphicalObject> objects = new ArrayList<>();
+
+        objects.add(new LineSegment());
+        objects.add(new Oval());
+
+        SwingUtilities.invokeLater(() -> {
+            GUI gui = new GUI(objects);
+            gui.setVisible(true);
+        });
+    }
+
     private void registerPrototype(GraphicalObject prototype) {
         loadingPrototypes.put(prototype.getShapeID(), prototype);
     }
@@ -185,18 +197,6 @@ public final class GUI extends JFrame {
         for (GraphicalObject object : documentModel.list())
             object.render(renderer);
         renderer.close();
-    }
-
-    public static void main(String[] args) {
-        List<GraphicalObject> objects = new ArrayList<>();
-
-        objects.add(new LineSegment());
-        objects.add(new Oval());
-
-        SwingUtilities.invokeLater(() -> {
-            GUI gui = new GUI(objects);
-            gui.setVisible(true);
-        });
     }
 
     State getCurrentState() {
