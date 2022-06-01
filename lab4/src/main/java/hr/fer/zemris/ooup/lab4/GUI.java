@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,32 @@ public final class GUI extends JFrame {
 
         JToolBar toolBar = new JToolBar();
         getContentPane().add(toolBar, BorderLayout.PAGE_START);
+
+        JButton svgExportButton = new JButton("SVG export");
+        svgExportButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int chosenOption = fileChooser.showSaveDialog(GUI.this);
+
+                if (chosenOption != JFileChooser.APPROVE_OPTION)
+                    return;
+                String fileName = fileChooser.getSelectedFile().getPath();
+
+                SVGRendererImpl renderer = new SVGRendererImpl(fileName);
+                for (GraphicalObject object : documentModel.list())
+                    object.render(renderer);
+                try {
+                    renderer.close();
+                } catch (IOException ioException) {
+                    JOptionPane.showMessageDialog(GUI.this,
+                            "Greška pri izvozu u datoteku " + fileName,
+                            "Greška",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        toolBar.add(svgExportButton);
 
         for (GraphicalObject prototype : prototypes) {
             JButton button = new JButton(prototype.getShapeName());
