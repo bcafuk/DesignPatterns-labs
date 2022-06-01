@@ -1,6 +1,5 @@
 package hr.fer.zemris.ooup.lab4;
 
-import hr.fer.zemris.ooup.lab4.geometry.GeometryUtil;
 import hr.fer.zemris.ooup.lab4.geometry.Point;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObjectListener;
@@ -137,7 +136,7 @@ public final class DocumentModel {
         double minimumDistance = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < object.getNumberOfHotPoints(); i++) {
-            double distance = GeometryUtil.distanceFromPoint(object.getHotPoint(i), mousePoint);
+            double distance = object.getHotPointDistance(i, mousePoint);
 
             if (distance <= SELECTION_PROXIMITY && distance <= minimumDistance) {
                 closestHotPoint = i;
