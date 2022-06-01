@@ -17,10 +17,6 @@ public interface GraphicalObject {
 
     void setHotPoint(int index, Point point);
 
-    boolean isHotPointSelected(int index);
-
-    void setHotPointSelected(int index, boolean selected);
-
     double getHotPointDistance(int index, Point mousePoint);
 
     void translate(Point delta);

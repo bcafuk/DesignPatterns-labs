@@ -8,14 +8,12 @@ import java.util.List;
 
 public abstract class AbstractGraphicalObject implements GraphicalObject {
     private final Point[] hotPoints;
-    private final boolean[] hotPointSelected;
     private boolean selected;
 
     List<GraphicalObjectListener> listeners = new ArrayList<>();
 
     protected AbstractGraphicalObject(Point[] hotPoints) {
         this.hotPoints = hotPoints.clone();
-        hotPointSelected = new boolean[hotPoints.length];
         selected = false;
     }
 
@@ -39,16 +37,6 @@ public abstract class AbstractGraphicalObject implements GraphicalObject {
     @Override
     public double getHotPointDistance(int index, Point mousePoint) {
         return GeometryUtil.distanceFromPoint(hotPoints[index], mousePoint);
-    }
-
-    @Override
-    public boolean isHotPointSelected(int index) {
-        return hotPointSelected[index];
-    }
-
-    @Override
-    public void setHotPointSelected(int index, boolean selected) {
-        hotPointSelected[index] = selected;
     }
 
     @Override
