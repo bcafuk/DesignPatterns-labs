@@ -4,10 +4,7 @@ import hr.fer.zemris.ooup.lab4.graphicalObjects.CompositeShape;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.GraphicalObject;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.LineSegment;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.Oval;
-import hr.fer.zemris.ooup.lab4.states.AddShapeState;
-import hr.fer.zemris.ooup.lab4.states.IdleState;
-import hr.fer.zemris.ooup.lab4.states.SelectShapeState;
-import hr.fer.zemris.ooup.lab4.states.State;
+import hr.fer.zemris.ooup.lab4.states.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -159,6 +156,15 @@ public final class GUI extends JFrame {
             }
         });
         toolBar.add(selectionButton);
+
+        JButton eraseButton = new JButton("Brisalo");
+        eraseButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setCurrentState(new EraserState(documentModel));
+            }
+        });
+        toolBar.add(eraseButton);
     }
 
     private void loadImage(Path path) throws IOException {
