@@ -5,6 +5,7 @@ import hr.fer.zemris.ooup.lab4.graphicalObjects.LineSegment;
 import hr.fer.zemris.ooup.lab4.graphicalObjects.Oval;
 import hr.fer.zemris.ooup.lab4.states.AddShapeState;
 import hr.fer.zemris.ooup.lab4.states.IdleState;
+import hr.fer.zemris.ooup.lab4.states.SelectShapeState;
 import hr.fer.zemris.ooup.lab4.states.State;
 
 import javax.swing.*;
@@ -44,6 +45,15 @@ public final class GUI extends JFrame {
 
             toolBar.add(button);
         }
+
+        JButton selectionButton = new JButton("Selektiraj");
+        selectionButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setCurrentState(new SelectShapeState(documentModel));
+            }
+        });
+        toolBar.add(selectionButton);
 
         canvas.addKeyListener(new KeyAdapter() {
             @Override
