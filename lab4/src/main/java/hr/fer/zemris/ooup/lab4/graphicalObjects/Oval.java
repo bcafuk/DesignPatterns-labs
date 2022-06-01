@@ -5,7 +5,7 @@ import hr.fer.zemris.ooup.lab4.geometry.Rectangle;
 import hr.fer.zemris.ooup.lab4.Renderer;
 
 public final class Oval extends AbstractGraphicalObject {
-    private final int NUM_POINTS = 64;
+    private final static int NUM_POINTS = 64;
 
     public Oval() {
         this(new Point(10, 0), new Point(0, 10));
